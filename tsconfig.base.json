@@ -1,0 +1,17 @@
+// tsconfig.base.json  (repo-root)
+{
+  "compilerOptions": {
+    /* strictness you want everywhere */
+    "strict": true,
+    "noUncheckedIndexedAccess": true,
+
+    /* modern TS / module resolution */
+    "target": "ES2021",
+
+    /* share the alias that exposes AppRouter's type-only file */
+    "baseUrl": ".",
+    "paths": {
+      "@backend/api": ["backend/types.ts"] // <= see note below
+    }
+  }
+}
