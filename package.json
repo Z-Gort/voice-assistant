@@ -10,7 +10,9 @@
     "lint": "pnpm --recursive lint",
     "typecheck": "pnpm --recursive typecheck",
     "format": "pnpm --recursive format:write",
-    "format:check": "pnpm --recursive format:check"
+    "format:check": "pnpm --recursive format:check",
+    "android": "expo run:android",
+    "ios": "expo run:ios"
   },
   "devDependencies": {
     "@types/node": "^20.14.10",
@@ -20,5 +22,10 @@
   "engines": {
     "node": ">=18.0.0",
     "pnpm": ">=9.0.0"
+  },
+  "dependencies": {
+    "expo": "~50.0.17",
+    "react": "18.2.0",
+    "react-native": "0.73.6"
   }
 }
