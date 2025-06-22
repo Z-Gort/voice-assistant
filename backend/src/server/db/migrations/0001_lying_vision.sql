@@ -1,0 +1,1 @@
+ALTER TABLE "user" RENAME COLUMN "plan" TO "chat_history";
