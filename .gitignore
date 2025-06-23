@@ -6,6 +6,8 @@ node_modules/
 .next/
 dist/
 build/
+mobile/ios
+mobile/android
 
 # Environment variables
 .env
@@ -106,6 +108,8 @@ web-build/
 
 # Flipper
 ios/Pods/
+
+
 
 # OS generated files
 .DS_Store
