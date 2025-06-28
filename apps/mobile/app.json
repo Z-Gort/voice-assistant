@@ -1,0 +1,8 @@
+{
+  "ios": {
+    "bundleIdentifier": "com.zgort.mobile"
+  },
+  "android": {
+    "package": "com.zgort.mobile"
+  }
+}
