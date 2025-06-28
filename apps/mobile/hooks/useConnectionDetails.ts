@@ -1,7 +1,7 @@
 import { useEffect, useState } from 'react';
 
 // TODO: Add your Sandbox ID here
-const sandboxID = '';
+const sandboxID = 'immutable-opcode-1awf9f';
 const tokenEndpoint =
   'https://cloud-api.livekit.io/api/sandbox/connection-details';
 
