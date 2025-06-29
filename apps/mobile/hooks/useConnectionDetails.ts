@@ -1,13 +1,13 @@
-import { useEffect, useState } from 'react';
+import { useEffect, useState } from "react";
 
 // TODO: Add your Sandbox ID here
-const sandboxID = 'immutable-opcode-1awf9f';
+const sandboxID = "artificial-microservice-3wqxms";
 const tokenEndpoint =
-  'https://cloud-api.livekit.io/api/sandbox/connection-details';
+  "https://cloud-api.livekit.io/api/sandbox/connection-details";
 
 // For use without a token server.
-const hardcodedUrl = '';
-const hardcodedToken = '';
+const hardcodedUrl = "";
+const hardcodedToken = "";
 
 /**
  * Retrieves a LiveKit token.
@@ -32,16 +32,16 @@ export function useConnectionDetails(): ConnectionDetails | undefined {
         return;
       }
       const response = await fetch(tokenEndpoint, {
-        headers: { 'X-Sandbox-ID': sandboxID },
+        headers: { "X-Sandbox-ID": sandboxID },
       });
       const json = await response.json();
-
       if (json.serverUrl && json.participantToken) {
         setDetails({
           url: json.serverUrl,
           token: json.participantToken,
         });
       }
+      console.log("details", details);
     };
 
     fetchToken();

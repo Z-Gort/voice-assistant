@@ -1,21 +1,29 @@
-import { useConnectionDetails } from "@/hooks/useConnectionDetails";
+import {
+  Image,
+  Pressable,
+  ScrollView,
+  StyleSheet,
+  View,
+  Text,
+} from "react-native";
+
+import { api } from "@/lib/trpc";
 import {
   AudioSession,
   BarVisualizer,
   LiveKitRoom,
   useIOSAudioManagement,
   useLocalParticipant,
-  useParticipantTracks,
   useRoomContext,
-  useTrackTranscription,
   useVoiceAssistant,
 } from "@livekit/react-native";
-import { Track } from "livekit-client";
+import { useRouter } from "expo-router";
 import React, { useEffect } from "react";
-import { Image, Pressable, StyleSheet, View } from "react-native";
 import { SafeAreaView } from "react-native-safe-area-context";
 
-export default function Index() {
+const SERVER_URL = "wss://gmailai-v1szfdc6.livekit.cloud";
+
+export default function AssistantScreen() {
   // Start the audio session first.
   useEffect(() => {
     let start = async () => {
@@ -24,17 +32,34 @@ export default function Index() {
 
     start();
     return () => {
-      AudioSession.stopAudioSession(); //cleanup when component unmounts
+      AudioSession.stopAudioSession();
     };
   }, []);
 
-  const connectionDetails = useConnectionDetails();
+  const {
+    data: liveKitToken,
+    isLoading,
+    isError,
+    error,
+  } = api.other.createLiveKitToken.useQuery();
+
+  if (isLoading) {
+    return <View><Text>Requesting token</Text></View>;
+  }
+  if (isError) {
+    console.error("Token error:", error);
+    return (
+      <View>
+        <Text>Could not get token</Text>
+      </View>
+    );
+  }
 
   return (
     <SafeAreaView>
       <LiveKitRoom
-        serverUrl={connectionDetails?.url}
-        token={connectionDetails?.token}
+        serverUrl={SERVER_URL}
+        token={liveKitToken}
         connect={true}
         audio={true}
         video={false}
@@ -46,45 +71,46 @@ export default function Index() {
 }
 
 const RoomView = () => {
+  const router = useRouter();
+
   const room = useRoomContext();
   useIOSAudioManagement(room, true);
 
   const { isMicrophoneEnabled, localParticipant } = useLocalParticipant();
 
-  const localTracks = useParticipantTracks(
-    [Track.Source.Microphone],
-    localParticipant.identity
-  );
+  const { microphoneTrack } = useLocalParticipant();
+  console.log("microphoneTrack:", microphoneTrack?.trackInfo);
 
-  const { segments: userTranscriptions } = useTrackTranscription(
-    localTracks[0]
-  );
-
+  // Controls
   const micImage = isMicrophoneEnabled
     ? require("../assets/images/baseline_mic_white_24dp.png")
     : require("../assets/images/baseline_mic_off_white_24dp.png");
 
   return (
     <View style={styles.container}>
-      <SimpleVoiceAssistant localTrack={localTracks[0]} />
-      <Pressable
-        style={({ pressed }) => [
-          { backgroundColor: pressed ? "rgb(210, 230, 255)" : "#007DFF" },
-          styles.button,
-        ]}
-        onPress={() => {
-          localParticipant.setMicrophoneEnabled(!isMicrophoneEnabled);
-        }}
-      >
-        <Image style={styles.icon} source={micImage} />
-      </Pressable>
+      <SimpleVoiceAssistant />
+      <ScrollView style={styles.logContainer}></ScrollView>
+
+      <View style={styles.controlsContainer}>
+        <Pressable
+          style={({ pressed }) => [
+            { backgroundColor: pressed ? "rgb(210, 230, 255)" : "#007DFF" },
+            styles.button,
+          ]}
+          onPress={() => {
+            localParticipant.setMicrophoneEnabled(!isMicrophoneEnabled);
+          }}
+        >
+          <Image style={styles.icon} source={micImage} />
+        </Pressable>
+      </View>
     </View>
   );
 };
 
-const SimpleVoiceAssistant = ({ localTrack }: { localTrack?: any }) => {
-  const { state } = useVoiceAssistant();
-  console.log("Voice assistant state:", state);
+const SimpleVoiceAssistant = () => {
+  const { state, audioTrack } = useVoiceAssistant();
+
   return (
     <BarVisualizer
       state={state}
@@ -92,12 +118,11 @@ const SimpleVoiceAssistant = ({ localTrack }: { localTrack?: any }) => {
       options={{
         minHeight: 0.5,
       }}
-      trackRef={localTrack}
+      trackRef={audioTrack} //won't work for some reason
       style={styles.voiceAssistant}
     />
   );
 };
-
 const styles = StyleSheet.create({
   container: {
     width: "100%",

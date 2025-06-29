@@ -1,26 +1,13 @@
 {
   "extends": "expo/tsconfig.base",
   "compilerOptions": {
-    "jsx": "react-native",
-    "types": [
-      "expo"
-    ],
     "strict": true,
-    "noUncheckedIndexedAccess": true,
+    "moduleResolution": "bundler",
     "paths": {
-      "@/*": [
-        "./*"
-      ],
-      "@backend/api": [
-        "../backend/types.ts"
-      ],
-      "~/*": [
-        "../backend/src/*"
-      ]
+      "@/*": ["./*"],
+      "@backend/api": ["../backend/types.ts"],
+      "~/*": ["../backend/src/*"]
     }
   },
-  "include": [
-    "**/*.ts",
-    "**/*.tsx"
-  ]
+  "include": ["**/*.ts", "**/*.tsx"]
 }

@@ -1,13 +1,11 @@
 import { z } from "zod";
 
-// Input audio noise reduction configuration
 export const inputAudioNoiseReductionSchema = z
   .object({
     // Add specific properties when needed
   })
   .nullable();
 
-// Input audio transcription configuration
 export const inputAudioTranscriptionSchema = z
   .object({
     model: z.string().optional(),
@@ -16,14 +14,12 @@ export const inputAudioTranscriptionSchema = z
   })
   .nullable();
 
-// Turn detection configuration
 export const turnDetectionSchema = z
   .object({
     // Add specific properties when needed
   })
   .nullable();
 
-// Tracing configuration
 export const tracingSchema = z
   .union([
     z.literal("auto"),
@@ -33,12 +29,10 @@ export const tracingSchema = z
   ])
   .nullable();
 
-// Tool schema
 export const toolSchema = z.object({
   // Add specific properties when needed
 });
 
-// Client secret configuration
 export const clientSecretConfigSchema = z.object({
   input_audio_format: z.enum(["pcm16", "g711_ulaw", "g711_alaw"]).optional(),
   input_audio_noise_reduction: inputAudioNoiseReductionSchema.optional(),
@@ -73,7 +67,6 @@ export const clientSecretConfigSchema = z.object({
     .optional(),
 });
 
-// Client secret response
 export const clientSecretResponseSchema = z.object({
   value: z.string(),
   expires_at: z.number(),
@@ -100,10 +93,8 @@ export const openaiRealtimeSessionResponseSchema = z.object({
   client_secret: clientSecretResponseSchema,
 });
 
-// Request body for creating a session
 export const createSessionRequestSchema = clientSecretConfigSchema;
 
-// Export types
 export type OpenAIRealtimeSessionResponse = z.infer<
   typeof openaiRealtimeSessionResponseSchema
 >;

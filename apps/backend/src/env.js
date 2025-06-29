@@ -10,6 +10,8 @@ export const env = createEnv({
     NODE_ENV: z.enum(["development", "test", "production"]),
     SUPABASE_URL: z.string(),
     OPENAI_API_KEY: z.string(),
+    LIVEKIT_API_KEY: z.string(),
+    LIVEKIT_API_SECRET: z.string(),
   },
 
   /**
@@ -29,7 +31,8 @@ export const env = createEnv({
     NODE_ENV: process.env.NODE_ENV,
     SUPABASE_URL: process.env.SUPABASE_URL,
     OPENAI_API_KEY: process.env.OPENAI_API_KEY,
-    // NEXT_PUBLIC_CLIENTVAR: process.env.NEXT_PUBLIC_CLIENTVAR,
+    LIVEKIT_API_KEY: process.env.LIVEKIT_API_KEY,
+    LIVEKIT_API_SECRET: process.env.LIVEKIT_API_SECRET,
   },
   /**
    * Run `build` or `dev` with `SKIP_ENV_VALIDATION` to skip env validation. This is especially

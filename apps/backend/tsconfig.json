@@ -1,5 +1,5 @@
 {
-  "extends": "../tsconfig.base.json", // repo root is one level up
+  "extends": "../../tsconfig.base.json", // repo root is two levels up from apps/backend
   "compilerOptions": {
     "jsx": "preserve",
     "module": "ESNext",
@@ -12,15 +12,9 @@
       }
     ],
     "paths": {
-      "~/*": [
-        "backend/src/*"
-      ]
+      "~/*": ["apps/backend/src/*"]
     },
-    "lib": [
-      "dom",
-      "dom.iterable",
-      "esnext"
-    ],
+    "lib": ["dom", "dom.iterable", "esnext"],
     "skipLibCheck": true,
     "noEmit": true,
     "incremental": true,
@@ -28,14 +22,6 @@
     "resolveJsonModule": true,
     "isolatedModules": true
   },
-  "include": [
-    "next-env.d.ts",
-    "**/*.ts",
-    "**/*.tsx",
-    ".next/types/**/*.ts"
-  ],
-  "exclude": [
-    "node_modules",
-    ".eslintrc.cjs"
-  ]
+  "include": ["next-env.d.ts", "**/*.ts", "**/*.tsx", ".next/types/**/*.ts"],
+  "exclude": ["node_modules", ".eslintrc.cjs"]
 }
