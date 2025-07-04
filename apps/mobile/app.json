@@ -26,6 +26,9 @@
     "ios": {
       "bitcode": false,
       "bundleIdentifier": "com.zgort.mobile"
+    },
+    "web": {
+      "bundler": "metro"
     }
   }
 }
