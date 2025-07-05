@@ -5,8 +5,10 @@ import {
   uuid
 } from "drizzle-orm/pg-core";
 
-export const user = pgTable("user", {
+export const users = pgTable("users", {
   id: uuid("id").primaryKey().defaultRandom().notNull(),
-  chatHistory: text("chat_history"),
+  email: text("email").notNull(),
+  refreshToken: text("refresh_token"),
+  clerkId: text("clerk_id").notNull(),
   createdAt: timestamp("created_at").defaultNow().notNull(),
 });

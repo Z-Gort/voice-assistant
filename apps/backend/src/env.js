@@ -12,6 +12,7 @@ export const env = createEnv({
     OPENAI_API_KEY: z.string(),
     LIVEKIT_API_KEY: z.string(),
     LIVEKIT_API_SECRET: z.string(),
+    CLERK_SECRET_KEY: z.string(),
   },
 
   /**
@@ -33,6 +34,7 @@ export const env = createEnv({
     OPENAI_API_KEY: process.env.OPENAI_API_KEY,
     LIVEKIT_API_KEY: process.env.LIVEKIT_API_KEY,
     LIVEKIT_API_SECRET: process.env.LIVEKIT_API_SECRET,
+    CLERK_SECRET_KEY: process.env.CLERK_SECRET_KEY,
   },
   /**
    * Run `build` or `dev` with `SKIP_ENV_VALIDATION` to skip env validation. This is especially

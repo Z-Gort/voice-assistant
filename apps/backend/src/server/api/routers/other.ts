@@ -2,14 +2,19 @@ import { z } from "zod";
 
 import { AccessToken } from "livekit-server-sdk";
 import { env } from "~/env";
-import { createTRPCRouter, publicProcedure } from "~/server/api/trpc";
+import {
+  createTRPCRouter,
+  publicProcedure,
+  protectedProcedure,
+} from "~/server/api/trpc";
 import {
   createSessionRequestSchema,
   openaiRealtimeSessionResponseSchema,
 } from "~/types/openaiRealtime";
+import { db } from "~/server/db";
 
 export const otherRouter = createTRPCRouter({
-  getRealtimeSession: publicProcedure
+  getRealtimeSession: protectedProcedure
     .input(createSessionRequestSchema.optional())
     .query(async ({ input }) => {
       const response = await fetch(
@@ -39,7 +44,7 @@ export const otherRouter = createTRPCRouter({
 
       return validatedData;
     }),
-  createLiveKitToken: publicProcedure.query(async () => {
+  createLiveKitToken: protectedProcedure.query(async () => {
     try {
       const roomName = `test-room`;
       const participantName = "userZ";
@@ -56,19 +61,25 @@ export const otherRouter = createTRPCRouter({
       throw error;
     }
   }),
-
-  // create: publicProcedure
-  //   .input(z.object({ name: z.string().min(1) }))
-  //   .mutation(async ({ input }) => {
-  //     const post: Post = {
-  //       id: posts.length + 1,
-  //       name: input.name,
-  //     };
-  //     posts.push(post);
-  //     return post;
-  //   }),
-
-  // getLatest: publicProcedure.query(() => {
-  //   return posts.at(-1) ?? null;
-  // }),
+  testMutation: publicProcedure
+    .input(
+      z.object({
+        testData: z.string().optional(),
+      }),
+    )
+    .mutation(async ({ input, ctx }) => {
+      try {
+        // TODO: Add functionality here
+        // This is a test mutation with blank functionality
+        console.log("ctx", ctx);
+        return {
+          success: true,
+          message: "Test mutation executed",
+          receivedData: input.testData,
+        };
+      } catch (error) {
+        console.error("Error in testMutation:", error);
+        throw error;
+      }
+    }),
 });

@@ -39,6 +39,19 @@ export default function AssistantScreen() {
     error,
   } = api.other.createLiveKitToken.useQuery();
 
+  const testMutation = api.other.testMutation.useMutation({
+    onSuccess: (data) => {
+      console.log(data); // Your return value here
+    },
+    onError: (error) => {
+      console.error(error);
+    },
+  });
+
+  useEffect(() => {
+    testMutation.mutateAsync({ testData: "test" });
+  }, []);
+
   if (isLoading) {
     return (
       <View>
@@ -104,7 +117,7 @@ const RoomView = () => {
           variant="default"
           className="w-15 h-15 rounded-full bg-blue-600 active:bg-blue-700 p-2.5"
           onPress={() =>
-            localParticipant.setMicrophoneEnabled(!isMicrophoneEnabled)
+            localParticipant.setMicrophoneEnabled(!isMicrophoneEnabled) // Mute toggle causes audio to cut out for a moment
           }
         >
           <Image source={micImage} className="w-10 h-10" />

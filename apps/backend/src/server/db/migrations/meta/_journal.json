@@ -15,6 +15,13 @@
       "when": 1750600024659,
       "tag": "0001_lying_vision",
       "breakpoints": true
+    },
+    {
+      "idx": 2,
+      "version": "7",
+      "when": 1751677307141,
+      "tag": "0002_short_franklin_richards",
+      "breakpoints": true
     }
   ]
 }
