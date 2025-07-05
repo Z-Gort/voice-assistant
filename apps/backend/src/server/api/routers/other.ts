@@ -48,7 +48,7 @@ export const otherRouter = createTRPCRouter({
         identity: participantName,
         ttl: "10m",
       });
-      at.addGrant({ roomJoin: true, room: "7-room" }); //ranodomly generate a new room every time
+      at.addGrant({ roomJoin: true, room: "8-room" }); //ranodomly generate a new room every time
 
       return await at.toJwt();
     } catch (error) {

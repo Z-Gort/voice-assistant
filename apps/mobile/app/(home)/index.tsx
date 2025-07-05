@@ -1,8 +1,7 @@
 import AssistantScreen from "@/components/AssistantScreen";
-import { SignOutButton } from "@/components/SignOutButton";
 import { SignedIn, SignedOut, useUser } from "@clerk/clerk-expo";
 import { Redirect } from "expo-router";
-import { Text, View } from "react-native";
+import { View } from "react-native";
 
 export default function Page() {
   const { user } = useUser();
@@ -10,12 +9,10 @@ export default function Page() {
   return (
     <View className="flex-1">
       <SignedIn>
-        {/* <Text>Hello {user?.emailAddresses[0].emailAddress}</Text>
-        <SignOutButton /> */}
         <AssistantScreen />
       </SignedIn>
       <SignedOut>
-        <Redirect href={"/sign-in"} />
+        <Redirect href={"/SignIn"} />
       </SignedOut>
     </View>
   );

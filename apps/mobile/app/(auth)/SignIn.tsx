@@ -114,7 +114,7 @@ export default function Page() {
           <Text className="text-sm text-muted-foreground">
             Don&apos;t have an account?
           </Text>
-          <Link href="/sign-up" className="ml-1">
+          <Link href="/SignUp" className="ml-1">
             <Text className="text-sm text-primary font-medium">Sign up</Text>
           </Link>
         </View>

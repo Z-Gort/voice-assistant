@@ -68,6 +68,8 @@ export default function SignUpScreen() {
       if (signUpAttempt.status === "complete") {
         await setActive({ session: signUpAttempt.createdSessionId });
         router.replace("/");
+
+        
       } else {
         // If the status is not complete, check why. User may need to
         // complete further steps.
@@ -195,7 +197,7 @@ export default function SignUpScreen() {
           <Text className="text-sm text-muted-foreground">
             Already have an account?
           </Text>
-          <Link href="/sign-in" className="ml-1">
+          <Link href="/signIn" className="ml-1">
             <Text className="text-sm text-primary font-medium">Sign in</Text>
           </Link>
         </View>

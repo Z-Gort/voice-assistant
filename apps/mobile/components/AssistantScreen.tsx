@@ -1,6 +1,7 @@
 import { Image, Text, View } from "react-native";
 
 import { Button } from "@/components/ui/button";
+import { SignOutButton } from "@/components/SignOutButton";
 import { api } from "@/lib/trpc";
 import {
   AudioSession,
@@ -86,20 +87,29 @@ const RoomView = () => {
     : require("../assets/images/baseline_mic_off_white_24dp.png");
 
   return (
-    <View className="flex-1 justify-between items-center px-4 pb-8 pt-8">
-      {/* Top-half */}
-      <SimpleVoiceAssistant />
+    <View className="flex-1 ">
+      {/* Top Section - Sign Out Button */}
+      <View className="w-full items-start mt-4 mx-4 mb-4">
+        <SignOutButton />
+      </View>
 
-      {/* Bottom-half */}
-      <Button
-        variant="default"
-        className="w-15 h-15 rounded-full bg-blue-600 active:bg-blue-700 p-2.5"
-        onPress={() =>
-          localParticipant.setMicrophoneEnabled(!isMicrophoneEnabled)
-        }
-      >
-        <Image source={micImage} className="w-10 h-10" />
-      </Button>
+      {/* Center Section - Voice Assistant */}
+      <View className="flex-1 justify-start items-center pt-16">
+        <SimpleVoiceAssistant />
+      </View>
+
+      {/* Bottom Section - Microphone Button */}
+      <View className="items-center">
+        <Button
+          variant="default"
+          className="w-15 h-15 rounded-full bg-blue-600 active:bg-blue-700 p-2.5"
+          onPress={() =>
+            localParticipant.setMicrophoneEnabled(!isMicrophoneEnabled)
+          }
+        >
+          <Image source={micImage} className="w-10 h-10" />
+        </Button>
+      </View>
     </View>
   );
 };
@@ -107,22 +117,24 @@ const RoomView = () => {
 const SimpleVoiceAssistant = () => {
   const { state, audioTrack } = useVoiceAssistant();
   return (
-    <View className="items-center">
-      <Text className="text-foreground text-lg mb-4">
+    <View className="items-center w-full">
+      <Text className="text-foreground text-lg mb-6">
         Voice Assistant State: {state}
       </Text>
-      <BarVisualizer
-        state={state}
-        barCount={7}
-        options={{
-          minHeight: 0.5,
-        }}
-        trackRef={audioTrack}
-        style={{
-          width: "100%",
-          height: 100,
-        }}
-      />
+      <View className="w-full items-center">
+        <BarVisualizer
+          state={state}
+          barCount={7}
+          options={{
+            minHeight: 0.5,
+          }}
+          trackRef={audioTrack}
+          style={{
+            width: "100%",
+            height: 100,
+          }}
+        />
+      </View>
     </View>
   );
 };
