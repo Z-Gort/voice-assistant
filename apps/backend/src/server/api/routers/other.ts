@@ -61,7 +61,7 @@ export const otherRouter = createTRPCRouter({
       throw error;
     }
   }),
-  testMutation: publicProcedure
+  testMutation: protectedProcedure
     .input(
       z.object({
         testData: z.string().optional(),

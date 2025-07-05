@@ -57,7 +57,7 @@ export default function RootLayout() {
 
   //Can implement light/dark later (https://www.reactnativereusables.com/getting-started/icons/)
   return (
-    <ClerkProvider tokenCache={tokenCache}>
+    <ClerkProvider publishableKey={process.env.EXPO_PUBLIC_CLERK_PUBLISHABLE_KEY!} tokenCache={tokenCache}>
       <TRPCProvider>
         <ThemeProvider value={isDarkColorScheme ? DARK_THEME : LIGHT_THEME}>
           <StatusBar style={isDarkColorScheme ? "light" : "dark"} />

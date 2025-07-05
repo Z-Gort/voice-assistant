@@ -16,7 +16,7 @@ export function TRPCProvider({ children }: { children: React.ReactNode }) {
           async headers() {
             const authToken = await getToken();
             return {
-              Authorization: authToken ?? undefined,
+              Authorization: authToken ? `Bearer ${authToken}` : undefined,
             };
           },
           url:
