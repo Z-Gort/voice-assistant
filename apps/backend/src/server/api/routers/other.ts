@@ -39,28 +39,23 @@ export const otherRouter = createTRPCRouter({
 
       return validatedData;
     }),
-  createLiveKitToken: publicProcedure
-    .query(async () => {
-      try {
-      const roomName = `userX-room`;
-      const participantName = 'userX'; //fetch from db
+  createLiveKitToken: publicProcedure.query(async () => {
+    try {
+      const roomName = `test-room`;
+      const participantName = "userZ";
 
-      const at = new AccessToken(
-        env.LIVEKIT_API_KEY,
-        env.LIVEKIT_API_SECRET,
-        {
-          identity: participantName,
-          ttl: "10m",
-        },
-      );
-      at.addGrant({ roomJoin: true, room: roomName });
+      const at = new AccessToken(env.LIVEKIT_API_KEY, env.LIVEKIT_API_SECRET, {
+        identity: participantName,
+        ttl: "10m",
+      });
+      at.addGrant({ roomJoin: true, room: "7-room" }); //ranodomly generate a new room every time
 
       return await at.toJwt();
     } catch (error) {
       console.error("Error creating LiveKit token:", error);
       throw error;
     }
-    }),
+  }),
 
   // create: publicProcedure
   //   .input(z.object({ name: z.string().min(1) }))

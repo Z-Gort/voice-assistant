@@ -6,6 +6,7 @@
   "packageManager": "pnpm@9.15.2",
   "scripts": {
     "dev": "pnpm --parallel dev",
+    "agent:dev": "apps/agent/.venv/bin/python apps/agent/agent.py dev",
     "build": "pnpm --recursive build",
     "lint": "pnpm --recursive lint",
     "typecheck": "pnpm --recursive typecheck",

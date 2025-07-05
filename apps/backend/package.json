@@ -48,7 +48,8 @@
     "eslint": "^8.57.0",
     "eslint-config-next": "^15.0.1",
     "prettier": "^3.3.2",
-    "prettier-plugin-tailwindcss": "^0.6.13"
+    "prettier-plugin-tailwindcss": "^0.6.13",
+    "tsup": "^8.0.1"
   },
   "ct3aMetadata": {
     "initVersion": "7.38.1"

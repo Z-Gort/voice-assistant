@@ -11,7 +11,8 @@ export function TRPCProvider({ children }: { children: React.ReactNode }) {
     api.createClient({
       links: [
         httpBatchLink({
-          url: "http://localhost:3000/api/trpc", // Your backend URL
+          url:
+            process.env.EXPO_PUBLIC_API_URL || "http://localhost:3000/api/trpc", // Use Android emulator IP as fallback
           transformer: superjson,
         }),
       ],
