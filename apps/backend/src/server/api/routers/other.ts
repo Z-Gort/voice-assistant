@@ -19,8 +19,6 @@ type NotionTokenResponse = {
 export const otherRouter = createTRPCRouter({
   getLiveKitToken: protectedProcedure.query(async ({ ctx }) => {
     try {
-      console.log("🔍 getLiveKitToken called for user:", ctx.auth.userId);
-
       // First, check if user has a refresh token
       const [user] = await db
         .select({ refreshToken: users.refreshToken })
@@ -28,19 +26,9 @@ export const otherRouter = createTRPCRouter({
         .where(eq(users.clerkId, ctx.auth.userId))
         .limit(1);
 
-      console.log(
-        "📝 User found:",
-        !!user,
-        "Has refresh token:",
-        !!user?.refreshToken,
-      );
-
       if (!user?.refreshToken) {
-        console.log("❌ No refresh token found, returning needsOAuth");
         return { needsOAuth: true };
       }
-
-      console.log("🔄 Attempting to exchange refresh token...");
 
       // Exchange refresh token for access token
       const tokenResponse = await fetch("https://mcp.notion.com/token", {
@@ -50,37 +38,18 @@ export const otherRouter = createTRPCRouter({
         },
         body: new URLSearchParams({
           grant_type: "refresh_token",
-          client_id: "qc3xHeGjXGGEMUNI",
+          client_id: env.NOTION_CLIENT_ID,
           refresh_token: user.refreshToken,
           resource: "https://mcp.notion.com",
         }),
       });
 
-      console.log("🌐 Notion API response status:", tokenResponse.status);
-
-      if (!tokenResponse.ok) {
-        console.error(
-          "❌ Notion API error:",
-          tokenResponse.status,
-          tokenResponse.statusText,
-        );
-        const errorText = await tokenResponse.text();
-        console.error("❌ Notion API error body:", errorText);
-        throw new TRPCError({
-          code: "BAD_GATEWAY",
-          message: `Notion API error: ${tokenResponse.status} ${tokenResponse.statusText}`,
-        });
-      }
-
       const tokenData = (await tokenResponse.json()) as NotionTokenResponse;
-      console.log("✅ Successfully got access token from Notion");
 
       // Create LiveKit token with access token in metadata
       const randomString = Math.random().toString(36).substring(2, 8);
       const participantName = ctx.auth.userId;
       const roomName = `${participantName}-${randomString}`;
-
-      console.log("🎫 Creating LiveKit token for room:", roomName);
 
       const at = new AccessToken(env.LIVEKIT_API_KEY, env.LIVEKIT_API_SECRET, {
         identity: participantName,
@@ -90,16 +59,9 @@ export const otherRouter = createTRPCRouter({
       at.addGrant({ roomJoin: true, room: roomName });
 
       const token = await at.toJwt();
-      console.log("✅ Successfully created LiveKit token");
-
       return { needsOAuth: false, liveKitToken: token };
     } catch (error) {
-      console.error("💥 Error in getLiveKitToken:", error);
-
-      if (error instanceof TRPCError) {
-        throw error;
-      }
-
+      console.error("getLiveKitToken error", error);
       throw new TRPCError({
         code: "INTERNAL_SERVER_ERROR",
         message: "Failed to get LiveKit token",
@@ -123,7 +85,7 @@ export const otherRouter = createTRPCRouter({
           },
           body: new URLSearchParams({
             grant_type: "authorization_code",
-            client_id: "qc3xHeGjXGGEMUNI",
+            client_id: env.NOTION_CLIENT_ID,
             code: input.code,
             code_verifier: input.codeVerifier,
             redirect_uri: "myapp://oauth-callback",
@@ -143,6 +105,7 @@ export const otherRouter = createTRPCRouter({
 
         return { success: true };
       } catch (error) {
+        console.error("exchangeOAuthCode error", error);
         throw new TRPCError({
           code: "INTERNAL_SERVER_ERROR",
           message: "Failed to exchange OAuth code",
@@ -167,6 +130,7 @@ export const otherRouter = createTRPCRouter({
 
         return user;
       } catch (error) {
+        console.error("createUser error", error);
         throw new TRPCError({
           code: "INTERNAL_SERVER_ERROR",
           message: "Failed to create user",
