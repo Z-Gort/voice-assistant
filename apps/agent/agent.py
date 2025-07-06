@@ -1,4 +1,5 @@
 import os
+import json
 from dotenv import load_dotenv
 
 from livekit import agents
@@ -10,6 +11,7 @@ from livekit.plugins import (
 from livekit.plugins.openai import realtime
 from openai.types.beta.realtime.session import TurnDetection
 import logging, sys
+from prompt import SYS_PROMPT
 
 logging.basicConfig(stream=sys.stderr, level=logging.DEBUG)
 
@@ -18,12 +20,20 @@ load_dotenv()
 
 class Assistant(Agent):
     def __init__(self) -> None:
-        super().__init__(
-            instructions="You are a productivity assistant with access to the user's Notion worrkspace."
-        )
+        super().__init__(instructions=SYS_PROMPT)
 
 
 async def entrypoint(ctx: agents.JobContext):
+    await ctx.connect()
+
+    # Wait for the first participant to join
+    participant = await ctx.wait_for_participant()
+
+    metadata = json.loads(participant.metadata)
+    access_token = metadata.get("accessToken")
+    if not access_token:
+        raise Exception("No access token found")
+
     session = AgentSession(
         llm=realtime.RealtimeModel(
             turn_detection=TurnDetection(
@@ -31,16 +41,15 @@ async def entrypoint(ctx: agents.JobContext):
                 eagerness="auto",
                 create_response=True,
                 interrupt_response=True,
-            )
+            ),
+            voice="coral",
         ),
         mcp_servers=[
             mcp.MCPServerHTTP(
                 url="https://mcp.notion.com/sse",
-                timeout=20,
-                client_session_timeout_seconds=20,
-                headers={
-                    "Authorization": f"Bearer 4f55f95a-f65b-4723-8eb3-dc3cfddf8225:DW19mZbDcPezsrtI:zSEfAi9coMHYVh7I0oMof64HO1Ztv3lH"
-                },
+                timeout=30,
+                client_session_timeout_seconds=30,
+                headers={"Authorization": f"Bearer {access_token}"},
             ),
         ],
     )
@@ -56,10 +65,8 @@ async def entrypoint(ctx: agents.JobContext):
         ),
     )
 
-    await ctx.connect()
-
     await session.generate_reply(
-        instructions="Search the user's Notion and give an overview of what's in it."
+        instructions="Ayo?"
     )
 
 

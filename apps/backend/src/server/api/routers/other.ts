@@ -1,85 +1,176 @@
+import { TRPCError } from "@trpc/server";
 import { z } from "zod";
 
 import { AccessToken } from "livekit-server-sdk";
 import { env } from "~/env";
-import {
-  createTRPCRouter,
-  publicProcedure,
-  protectedProcedure,
-} from "~/server/api/trpc";
-import {
-  createSessionRequestSchema,
-  openaiRealtimeSessionResponseSchema,
-} from "~/types/openaiRealtime";
+import { createTRPCRouter, protectedProcedure } from "~/server/api/trpc";
 import { db } from "~/server/db";
+import { users } from "~/server/db/schema";
+import { eq } from "drizzle-orm";
+
+type NotionTokenResponse = {
+  access_token: string;
+  token_type: string;
+  expires_in: number;
+  refresh_token: string;
+  scope: string;
+};
 
 export const otherRouter = createTRPCRouter({
-  getRealtimeSession: protectedProcedure
-    .input(createSessionRequestSchema.optional())
-    .query(async ({ input }) => {
-      const response = await fetch(
-        "https://api.openai.com/v1/realtime/sessions",
-        {
-          method: "POST",
-          headers: {
-            Authorization: `Bearer ${env.OPENAI_API_KEY}`,
-            "Content-Type": "application/json",
-          },
-          body: JSON.stringify({
-            model: "gpt-4o-realtime-preview-2025-06-03",
-            voice: "verse",
-            ...input, //not really correct--model and voice might be defined twice
-          }),
-        },
+  getLiveKitToken: protectedProcedure.query(async ({ ctx }) => {
+    try {
+      console.log("🔍 getLiveKitToken called for user:", ctx.auth.userId);
+
+      // First, check if user has a refresh token
+      const [user] = await db
+        .select({ refreshToken: users.refreshToken })
+        .from(users)
+        .where(eq(users.clerkId, ctx.auth.userId))
+        .limit(1);
+
+      console.log(
+        "📝 User found:",
+        !!user,
+        "Has refresh token:",
+        !!user?.refreshToken,
       );
 
-      if (!response.ok) {
-        throw new Error(
-          `OpenAI API error: ${response.status} ${response.statusText}`,
-        );
+      if (!user?.refreshToken) {
+        console.log("❌ No refresh token found, returning needsOAuth");
+        return { needsOAuth: true };
       }
 
-      const rawData = (await response.json()) as unknown;
-      const validatedData = openaiRealtimeSessionResponseSchema.parse(rawData);
+      console.log("🔄 Attempting to exchange refresh token...");
 
-      return validatedData;
-    }),
-  createLiveKitToken: protectedProcedure.query(async () => {
-    try {
-      const roomName = `test-room`;
-      const participantName = "userZ";
+      // Exchange refresh token for access token
+      const tokenResponse = await fetch("https://mcp.notion.com/token", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/x-www-form-urlencoded",
+        },
+        body: new URLSearchParams({
+          grant_type: "refresh_token",
+          client_id: "qc3xHeGjXGGEMUNI",
+          refresh_token: user.refreshToken,
+          resource: "https://mcp.notion.com",
+        }),
+      });
+
+      console.log("🌐 Notion API response status:", tokenResponse.status);
+
+      if (!tokenResponse.ok) {
+        console.error(
+          "❌ Notion API error:",
+          tokenResponse.status,
+          tokenResponse.statusText,
+        );
+        const errorText = await tokenResponse.text();
+        console.error("❌ Notion API error body:", errorText);
+        throw new TRPCError({
+          code: "BAD_GATEWAY",
+          message: `Notion API error: ${tokenResponse.status} ${tokenResponse.statusText}`,
+        });
+      }
+
+      const tokenData = (await tokenResponse.json()) as NotionTokenResponse;
+      console.log("✅ Successfully got access token from Notion");
+
+      // Create LiveKit token with access token in metadata
+      const randomString = Math.random().toString(36).substring(2, 8);
+      const participantName = ctx.auth.userId;
+      const roomName = `${participantName}-${randomString}`;
+
+      console.log("🎫 Creating LiveKit token for room:", roomName);
 
       const at = new AccessToken(env.LIVEKIT_API_KEY, env.LIVEKIT_API_SECRET, {
         identity: participantName,
         ttl: "10m",
+        metadata: JSON.stringify({ accessToken: tokenData.access_token }),
       });
-      at.addGrant({ roomJoin: true, room: "8-room" }); //ranodomly generate a new room every time
+      at.addGrant({ roomJoin: true, room: roomName });
 
-      return await at.toJwt();
+      const token = await at.toJwt();
+      console.log("✅ Successfully created LiveKit token");
+
+      return { needsOAuth: false, liveKitToken: token };
     } catch (error) {
-      console.error("Error creating LiveKit token:", error);
-      throw error;
+      console.error("💥 Error in getLiveKitToken:", error);
+
+      if (error instanceof TRPCError) {
+        throw error;
+      }
+
+      throw new TRPCError({
+        code: "INTERNAL_SERVER_ERROR",
+        message: "Failed to get LiveKit token",
+        cause: error,
+      });
     }
   }),
-  testMutation: protectedProcedure
+  exchangeOAuthCode: protectedProcedure
     .input(
       z.object({
-        testData: z.string().optional(),
+        code: z.string(),
+        codeVerifier: z.string(),
       }),
     )
     .mutation(async ({ input, ctx }) => {
       try {
-        // TODO: Add functionality here
-        // This is a test mutation with blank functionality
-        console.log("ctx", ctx);
-        return {
-          success: true,
-          message: "Test mutation executed",
-          receivedData: input.testData,
-        };
+        const tokenResponse = await fetch("https://mcp.notion.com/token", {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/x-www-form-urlencoded",
+          },
+          body: new URLSearchParams({
+            grant_type: "authorization_code",
+            client_id: "qc3xHeGjXGGEMUNI",
+            code: input.code,
+            code_verifier: input.codeVerifier,
+            redirect_uri: "myapp://oauth-callback",
+            resource: "https://mcp.notion.com",
+          }),
+        });
+
+        const tokenData = (await tokenResponse.json()) as NotionTokenResponse;
+
+        // Save refresh token to database
+        await db
+          .update(users)
+          .set({
+            refreshToken: tokenData.refresh_token,
+          })
+          .where(eq(users.clerkId, ctx.auth.userId));
+
+        return { success: true };
       } catch (error) {
-        console.error("Error in testMutation:", error);
-        throw error;
+        throw new TRPCError({
+          code: "INTERNAL_SERVER_ERROR",
+          message: "Failed to exchange OAuth code",
+        });
+      }
+    }),
+  createUser: protectedProcedure
+    .input(
+      z.object({
+        email: z.string().email(),
+      }),
+    )
+    .mutation(async ({ input, ctx }) => {
+      try {
+        const [user] = await db
+          .insert(users)
+          .values({
+            email: input.email,
+            clerkId: ctx.auth.userId,
+          })
+          .returning();
+
+        return user;
+      } catch (error) {
+        throw new TRPCError({
+          code: "INTERNAL_SERVER_ERROR",
+          message: "Failed to create user",
+        });
       }
     }),
 });

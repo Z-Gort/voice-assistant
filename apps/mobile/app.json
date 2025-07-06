@@ -6,6 +6,7 @@
     "package": "com.zgort.mobile"
   },
   "expo": {
+    "scheme": "myapp",
     "plugins": [
       "@livekit/react-native-expo-plugin",
       "@config-plugins/react-native-webrtc"
@@ -29,6 +30,12 @@
     },
     "web": {
       "bundler": "metro"
-    }
+    },
+    "extra": {
+      "eas": {
+        "projectId": "4a15f369-e6f8-4930-90fb-8d6df29d05cc"
+      }
+    },
+    "owner": "z-gort"
   }
 }

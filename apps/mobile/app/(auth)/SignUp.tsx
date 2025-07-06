@@ -6,10 +6,12 @@ import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
 import { Text } from "@/components/ui/text";
 import { Label } from "@/components/ui/label";
+import { api } from "@/lib/trpc";
 
 export default function SignUpScreen() {
   const { isLoaded, signUp, setActive } = useSignUp();
   const router = useRouter();
+  const createUser = api.other.createUser.useMutation();
 
   const [emailAddress, setEmailAddress] = React.useState("");
   const [password, setPassword] = React.useState("");
@@ -46,7 +48,6 @@ export default function SignUpScreen() {
       } else {
         setError("An error occurred during sign-up. Please try again.");
       }
-      console.error(JSON.stringify(err, null, 2));
     }
   };
 
@@ -67,13 +68,14 @@ export default function SignUpScreen() {
       // and redirect the user
       if (signUpAttempt.status === "complete") {
         await setActive({ session: signUpAttempt.createdSessionId });
-        router.replace("/");
 
-        
+        // Create user in database
+        await createUser.mutateAsync({ email: emailAddress });
+
+        router.replace("/");
       } else {
         // If the status is not complete, check why. User may need to
         // complete further steps.
-        console.error(JSON.stringify(signUpAttempt, null, 2));
         setError("Verification incomplete. Please try again.");
       }
     } catch (err: any) {
@@ -83,7 +85,6 @@ export default function SignUpScreen() {
       } else {
         setError("An error occurred during verification. Please try again.");
       }
-      console.error(JSON.stringify(err, null, 2));
     }
   };
 
@@ -140,7 +141,7 @@ export default function SignUpScreen() {
       <View className="w-full max-w-sm mx-auto space-y-8">
         <View className="text-center">
           <Text className="text-2xl font-bold tracking-tight text-foreground">
-            Create an account
+            Create An Account
           </Text>
           <Text className="text-sm text-muted-foreground mb-3">
             Enter your details to get started
@@ -171,8 +172,9 @@ export default function SignUpScreen() {
             <Input
               value={password}
               placeholder="Enter your password"
+              secureTextEntry={true}
               onChangeText={setPassword}
-              autoComplete="new-password"
+              autoComplete="off"
               aria-labelledby="password-label"
               className="w-full"
             />
@@ -197,7 +199,7 @@ export default function SignUpScreen() {
           <Text className="text-sm text-muted-foreground">
             Already have an account?
           </Text>
-          <Link href="/signIn" className="ml-1">
+          <Link href="/SignIn" className="ml-1">
             <Text className="text-sm text-primary font-medium">Sign in</Text>
           </Link>
         </View>

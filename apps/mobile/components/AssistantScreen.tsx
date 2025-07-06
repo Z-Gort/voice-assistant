@@ -1,4 +1,6 @@
 import { Image, Text, View } from "react-native";
+import * as WebBrowser from "expo-web-browser";
+import { generateCodeVerifier, generateCodeChallenge } from "@/lib/utils";
 
 import { Button } from "@/components/ui/button";
 import { SignOutButton } from "@/components/SignOutButton";
@@ -12,15 +14,16 @@ import {
   useRoomContext,
   useVoiceAssistant,
 } from "@livekit/react-native";
-import React, { useEffect } from "react";
+import React, { useEffect, useState } from "react";
 import { SafeAreaView } from "react-native-safe-area-context";
 
 const SERVER_URL = "wss://gmailai-v1szfdc6.livekit.cloud";
+const NOTION_CLIENT_ID = "qc3xHeGjXGGEMUNI";
+const REDIRECT_URI = "myapp://oauth-callback";
 
 export default function AssistantScreen() {
-  // Start the audio session first.
-  // TODO: should manually join room because if user just disconnected for 15secs
-  //  room still thinks they're there and won't let same user rejoin automatically (manual join workaround might help)
+  const [isExecutingOAuth, setIsExecutingOAuth] = useState(false);
+
   useEffect(() => {
     let start = async () => {
       await AudioSession.startAudioSession();
@@ -33,44 +36,79 @@ export default function AssistantScreen() {
   }, []);
 
   const {
-    data: liveKitToken,
-    isLoading,
-    isError,
-    error,
-  } = api.other.createLiveKitToken.useQuery();
+    data: tokenData,
+    isSuccess: tokenSuccess,
+    refetch: refetchToken,
+  } = api.other.getLiveKitToken.useQuery();
 
-  const testMutation = api.other.testMutation.useMutation({
-    onSuccess: (data) => {
-      console.log(data); // Your return value here
-    },
-    onError: (error) => {
-      console.error(error);
-    },
-  });
+  const exchangeCodeMutation = api.other.exchangeOAuthCode.useMutation();
 
+  // Execute OAuth flow if needed
   useEffect(() => {
-    testMutation.mutateAsync({ testData: "test" });
-  }, []);
+    const startOAuthFlow = async () => {
+      setIsExecutingOAuth(true);
+      try {
+        // Generate PKCE challenge
+        const codeVerifier = generateCodeVerifier();
+        const codeChallenge = await generateCodeChallenge(codeVerifier);
+
+        // Build the OAuth URL
+        const params = new URLSearchParams({
+          response_type: "code",
+          client_id: NOTION_CLIENT_ID,
+          redirect_uri: REDIRECT_URI,
+          code_challenge: codeChallenge,
+          code_challenge_method: "S256",
+          state: Math.random().toString(36).substring(2, 15),
+        });
+
+        const authUrl = `https://mcp.notion.com/authorize?${params.toString()}`;
+
+        // Open browser for OAuth
+        const result = await WebBrowser.openAuthSessionAsync(
+          authUrl,
+          REDIRECT_URI
+        );
+
+        // Handle the OAuth callback
+        if (result.type === "success") {
+          const url = new URL(result.url);
+          const code = url.searchParams.get("code");
+
+          if (code) {
+            await exchangeCodeMutation.mutateAsync({
+              code: decodeURIComponent(code),
+              codeVerifier,
+            });
+            // Refetch token after successful OAuth
+            await refetchToken();
+          }
+        }
+      } catch (error) {
+        console.error("OAuth flow error:", error);
+      } finally {
+        setIsExecutingOAuth(false);
+      }
+    };
+
+    // Start OAuth if we need it and aren't already executing it
+    if (tokenSuccess && tokenData?.needsOAuth && !isExecutingOAuth) {
+      startOAuthFlow();
+    }
+  }, [
+    tokenData,
+    tokenSuccess,
+    exchangeCodeMutation,
+    isExecutingOAuth,
+    refetchToken,
+  ]);
+
+  const isLoading = !tokenSuccess || isExecutingOAuth;
 
   if (isLoading) {
     return (
-      <View>
-        <Text>Requesting token</Text>
-      </View>
-    );
-  }
-  if (isError) {
-    return (
-      <View>
-        <Text>Could not get token</Text>
-      </View>
-    );
-  }
-
-  if (!liveKitToken) {
-    return (
-      <View>
-        <Text>No token received</Text>
+      <View className="flex-1 justify-center items-center">
+        <Text className="text-foreground text-lg">Loading...</Text>
       </View>
     );
   }
@@ -79,7 +117,7 @@ export default function AssistantScreen() {
     <SafeAreaView className="flex-1">
       <LiveKitRoom
         serverUrl={SERVER_URL}
-        token={liveKitToken}
+        token={tokenData?.liveKitToken}
         connect={true}
         audio={true}
         video={false}
@@ -100,7 +138,7 @@ const RoomView = () => {
     : require("../assets/images/baseline_mic_off_white_24dp.png");
 
   return (
-    <View className="flex-1 ">
+    <View className="flex-1">
       {/* Top Section - Sign Out Button */}
       <View className="w-full items-start mt-4 mx-4 mb-4">
         <SignOutButton />
@@ -117,7 +155,7 @@ const RoomView = () => {
           variant="default"
           className="w-15 h-15 rounded-full bg-blue-600 active:bg-blue-700 p-2.5"
           onPress={() =>
-            localParticipant.setMicrophoneEnabled(!isMicrophoneEnabled) // Mute toggle causes audio to cut out for a moment
+            localParticipant.setMicrophoneEnabled(!isMicrophoneEnabled)
           }
         >
           <Image source={micImage} className="w-10 h-10" />
@@ -131,9 +169,6 @@ const SimpleVoiceAssistant = () => {
   const { state, audioTrack } = useVoiceAssistant();
   return (
     <View className="items-center w-full">
-      <Text className="text-foreground text-lg mb-6">
-        Voice Assistant State: {state}
-      </Text>
       <View className="w-full items-center">
         <BarVisualizer
           state={state}

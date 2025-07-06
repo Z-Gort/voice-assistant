@@ -89,7 +89,7 @@ export default function Page() {
               placeholder="Enter your password"
               secureTextEntry={true}
               onChangeText={setPassword}
-              autoComplete="current-password"
+              autoComplete="off"
               aria-labelledby="password-label"
               className="w-full"
             />
