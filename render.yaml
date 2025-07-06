@@ -4,7 +4,7 @@ services:
     rootDir: apps/agent
 
     name: my-agent
-    runtime: image
+    runtime: docker
 
     # Free plan is not available for private services
     plan: starter
