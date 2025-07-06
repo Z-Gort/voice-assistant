@@ -42,7 +42,7 @@ async def entrypoint(ctx: agents.JobContext):
                 create_response=True,
                 interrupt_response=True,
             ),
-            voice="shimmer",
+            voice="coral",
         ),
         mcp_servers=[
             mcp.MCPServerHTTP(
