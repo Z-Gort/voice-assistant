@@ -4,7 +4,7 @@
   "version": "1.0.0",
   "scripts": {
     "start": "expo start",
-    "dev": "EXPO_PUBLIC_USE_LOCAL_API=true expo start --ios",
+    "dev": "APP_VARIANT=development expo start --ios",
     "reset-project": "node ./scripts/reset-project.js",
     "android": "expo run:android",
     "ios": "expo run:ios",

@@ -20,7 +20,7 @@ export function TRPCProvider({ children }: { children: React.ReactNode }) {
             };
           },
           url:
-            process.env.EXPO_PUBLIC_USE_LOCAL_API === "true"
+            process.env.APP_VARIANT === "development"
               ? "http://localhost:3000/api/trpc"
               : "https://gmail-ai-backend.vercel.app/api/trpc",
           transformer: superjson,

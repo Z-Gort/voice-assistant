@@ -1,9 +1,9 @@
 {
   "ios": {
-    "bundleIdentifier": "com.zgort.mobile"
+    "bundleIdentifier": "com.zgort.ai-agent"
   },
   "android": {
-    "package": "com.zgort.mobile"
+    "package": "com.zgort.ai-agent"
   },
   "expo": {
     "scheme": "myapp",
@@ -22,11 +22,11 @@
         "android.permission.WAKE_LOCK",
         "android.permission.BLUETOOTH"
       ],
-      "package": "com.zgort.mobile"
+      "package": "com.zgort.ai-agent"
     },
     "ios": {
       "bitcode": false,
-      "bundleIdentifier": "com.zgort.mobile"
+      "bundleIdentifier": "com.zgort.ai-agent"
     },
     "web": {
       "bundler": "metro"
