@@ -13,7 +13,7 @@ from openai.types.beta.realtime.session import TurnDetection
 import logging, sys
 from prompt import SYS_PROMPT
 
-logging.basicConfig(stream=sys.stderr, level=logging.DEBUG)
+logging.basicConfig(stream=sys.stderr, level=logging.INFO)
 
 load_dotenv()
 
@@ -32,6 +32,9 @@ async def entrypoint(ctx: agents.JobContext):
     metadata = json.loads(participant.metadata)
     access_token = metadata.get("accessToken")
     dev = metadata.get("dev")
+
+    if dev:
+        logging.getLogger().setLevel(logging.DEBUG)
 
     # MAKE SURE TO ADD BACK THIS CHECK BEFORE GIT PUSH
     if dev:

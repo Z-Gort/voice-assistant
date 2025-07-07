@@ -19,10 +19,9 @@ export function TRPCProvider({ children }: { children: React.ReactNode }) {
               Authorization: authToken ? `Bearer ${authToken}` : undefined,
             };
           },
-          url:
-            process.env.APP_VARIANT === "development"
-              ? "http://localhost:3000/api/trpc"
-              : "https://gmail-ai-backend.vercel.app/api/trpc",
+          url: __DEV__
+            ? "http://localhost:3000/api/trpc"
+            : "https://gmail-ai-backend.vercel.app/api/trpc",
           transformer: superjson,
         }),
       ],

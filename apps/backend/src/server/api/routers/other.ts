@@ -8,8 +8,6 @@ import { db } from "~/server/db";
 import { users } from "~/server/db/schema";
 import { eq } from "drizzle-orm";
 
-const isDev = env.NODE_ENV === "development";
-
 type NotionTokenResponse = {
   access_token: string;
   token_type: string;
@@ -52,6 +50,9 @@ export const otherRouter = createTRPCRouter({
       const randomString = Math.random().toString(36).substring(2, 8);
       const participantName = ctx.auth.userId;
       const roomName = `${participantName}-${randomString}`;
+
+      const isDev = env.NODE_ENV === "development";
+      console.log("isDev", isDev);
 
       const at = new AccessToken(env.LIVEKIT_API_KEY, env.LIVEKIT_API_SECRET, {
         identity: participantName,
