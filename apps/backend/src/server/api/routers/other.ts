@@ -8,6 +8,8 @@ import { db } from "~/server/db";
 import { users } from "~/server/db/schema";
 import { eq } from "drizzle-orm";
 
+const isDev = env.NODE_ENV === "development";
+
 type NotionTokenResponse = {
   access_token: string;
   token_type: string;
@@ -54,7 +56,10 @@ export const otherRouter = createTRPCRouter({
       const at = new AccessToken(env.LIVEKIT_API_KEY, env.LIVEKIT_API_SECRET, {
         identity: participantName,
         ttl: "10m",
-        metadata: JSON.stringify({ accessToken: tokenData.access_token }),
+        metadata: JSON.stringify({
+          accessToken: tokenData.access_token,
+          dev: isDev,
+        }),
       });
       at.addGrant({ roomJoin: true, room: roomName });
 

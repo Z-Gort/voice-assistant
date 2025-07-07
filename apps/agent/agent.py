@@ -31,6 +31,12 @@ async def entrypoint(ctx: agents.JobContext):
 
     metadata = json.loads(participant.metadata)
     access_token = metadata.get("accessToken")
+    dev = metadata.get("dev")
+
+    # MAKE SURE TO ADD BACK THIS CHECK BEFORE GIT PUSH
+    if dev:
+        return
+
     if not access_token:
         raise Exception("No access token found")
 

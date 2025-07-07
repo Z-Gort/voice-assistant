@@ -56,7 +56,7 @@ export default function Page() {
       <View className="w-full max-w-sm mx-auto space-y-8">
         <View className="text-center">
           <Text className="text-2xl font-bold tracking-tight text-foreground">
-            Welcome back!
+            Welcome Back!
           </Text>
           <Text className="text-sm text-muted-foreground mb-3">
             Sign in to continue
