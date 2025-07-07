@@ -15,9 +15,12 @@ import { useColorScheme } from "../lib/useColorScheme";
 import { TRPCProvider } from "@/lib/TrpcProvider";
 import { ClerkProvider } from "@clerk/clerk-expo";
 import { tokenCache } from "@clerk/clerk-expo/token-cache";
-import { registerGlobals } from '@livekit/react-native';
+import { registerGlobals } from "@livekit/react-native";
 
 registerGlobals();
+
+const CLERK_PUBLISHABLE_KEY =
+  "pk_test_ZXBpYy1tYW4tMzIuY2xlcmsuYWNjb3VudHMuZGV2JA";
 
 const LIGHT_THEME: Theme = {
   ...DefaultTheme,
@@ -57,7 +60,10 @@ export default function RootLayout() {
 
   //Can implement light/dark later (https://www.reactnativereusables.com/getting-started/icons/)
   return (
-    <ClerkProvider publishableKey={process.env.EXPO_PUBLIC_CLERK_PUBLISHABLE_KEY!} tokenCache={tokenCache}>
+    <ClerkProvider
+      publishableKey={CLERK_PUBLISHABLE_KEY}
+      tokenCache={tokenCache}
+    >
       <TRPCProvider>
         <ThemeProvider value={isDarkColorScheme ? DARK_THEME : LIGHT_THEME}>
           <StatusBar style={isDarkColorScheme ? "light" : "dark"} />

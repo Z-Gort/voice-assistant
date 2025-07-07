@@ -26,7 +26,10 @@
     },
     "ios": {
       "bitcode": false,
-      "bundleIdentifier": "com.zgort.ai-agent"
+      "bundleIdentifier": "com.zgort.ai-agent",
+      "infoPlist": {
+        "ITSAppUsesNonExemptEncryption": false
+      }
     },
     "web": {
       "bundler": "metro"
