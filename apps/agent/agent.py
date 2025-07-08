@@ -38,7 +38,7 @@ async def entrypoint(ctx: agents.JobContext):
 
     # If in production, don't run agents to dev frontend
     is_production = os.getenv("RENDER") is not None
-    if  is_production and is_frontend_dev:
+    if is_production and is_frontend_dev:
         return
 
     if not access_token:
