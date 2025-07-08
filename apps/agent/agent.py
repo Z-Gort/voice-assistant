@@ -31,13 +31,14 @@ async def entrypoint(ctx: agents.JobContext):
 
     metadata = json.loads(participant.metadata)
     access_token = metadata.get("accessToken")
-    dev = metadata.get("dev")
+    is_frontend_dev = metadata.get("dev")
 
-    if dev:
+    if is_frontend_dev:
         logging.getLogger().setLevel(logging.DEBUG)
 
-    # MAKE SURE TO ADD BACK THIS CHECK BEFORE GIT PUSH
-    if dev:
+    # If in production, don't run agents to dev frontend
+    is_production = os.getenv("RENDER") is not None
+    if  is_production and is_frontend_dev:
         return
 
     if not access_token:
@@ -74,9 +75,7 @@ async def entrypoint(ctx: agents.JobContext):
         ),
     )
 
-    await session.generate_reply(
-        instructions="Ayo?"
-    )
+    await session.generate_reply(instructions="Ayo?")
 
 
 if __name__ == "__main__":
