@@ -5,7 +5,6 @@ import { Link, useRouter } from "expo-router";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
 import { Text } from "@/components/ui/text";
-import { Label } from "@/components/ui/label";
 import { api } from "@/lib/trpc";
 
 export default function SignUpScreen() {
@@ -91,34 +90,33 @@ export default function SignUpScreen() {
   if (pendingVerification) {
     return (
       <View className="flex-1 justify-center px-6 bg-background">
-        <View className="w-full max-w-sm mx-auto space-y-8">
-          <View className="text-center">
-            <Text className="text-2xl font-bold tracking-tight text-foreground">
-              Verify your email
+        <View className="w-full max-w-sm mx-auto space-y-12 mb-20">
+          <View className="items-center mb-6">
+            <Text className="text-5xl font-semibold italic tracking-tight text-foreground text-center">
+              AI Agent
             </Text>
-            <Text className="text-sm text-muted-foreground mb-3">
-              We sent a verification code to {emailAddress}
+            <Text className="text-md text-muted-foreground mt-2">
+              create your account
             </Text>
           </View>
 
-          <View className="space-y-6">
-            <View className="space-y-2">
-              <Label nativeID="code-label" className="text-sm font-medium">
-                Verification Code
-              </Label>
+          <View className="space-y-8">
+            <View className="space-y-6">
+              <Text className="text-center text-muted-foreground">
+                We sent a verification code to {emailAddress}
+              </Text>
               <Input
                 value={code}
-                placeholder="Enter your verification code"
+                placeholder="Verification Code"
                 onChangeText={setCode}
                 keyboardType="number-pad"
                 autoComplete="one-time-code"
-                aria-labelledby="code-label"
                 className="w-full"
               />
             </View>
 
             {error && (
-              <View className="bg-destructive/10 border border-destructive/20 rounded-md p-3 mt-2">
+              <View className="bg-destructive/10 border border-destructive/20 rounded-md p-3">
                 <Text className="text-destructive text-sm">{error}</Text>
               </View>
             )}
@@ -126,7 +124,7 @@ export default function SignUpScreen() {
             <Button
               onPress={onVerifyPress}
               disabled={!isLoaded}
-              className="w-full mt-2"
+              className="w-full mt-4"
             >
               <Text>Verify</Text>
             </Button>
@@ -138,46 +136,38 @@ export default function SignUpScreen() {
 
   return (
     <View className="flex-1 justify-center px-6 bg-background">
-      <View className="w-full max-w-sm mx-auto space-y-8">
-        <View className="text-center">
-          <Text className="text-2xl font-bold tracking-tight text-foreground">
-            Create An Account
+      <View className="w-full max-w-sm mx-auto space-y-12 mb-20">
+        <View className="items-center mb-1">
+          <Text className="text-5xl font-semibold italic tracking-tight text-foreground text-center">
+            AI Agent
           </Text>
-          <Text className="text-sm text-muted-foreground mb-3">
-            Enter your details to get started
+          <Text className="text-lg text-muted-foreground mt-4 mb-1">
+            Create an account
           </Text>
         </View>
 
-        <View className="space-y-6">
-          <View className="space-y-2">
-            <Label nativeID="email-label" className="text-sm font-medium">
-              Email
-            </Label>
+        <View className="space-y-8">
+          <View className="space-y-6">
             <Input
               autoCapitalize="none"
               value={emailAddress}
-              placeholder="Enter your email"
+              placeholder="Email"
               onChangeText={setEmailAddress}
               keyboardType="email-address"
               autoComplete="email"
-              aria-labelledby="email-label"
               className="w-full"
             />
-          </View>
 
-          <View className="space-y-4">
-            <Label nativeID="password-label" className="text-sm font-medium">
-              Password
-            </Label>
-            <Input
-              value={password}
-              placeholder="Enter your password"
-              secureTextEntry={true}
-              onChangeText={setPassword}
-              autoComplete="off"
-              aria-labelledby="password-label"
-              className="w-full"
-            />
+            <View className="space-y-4 mt-2">
+              <Input
+                value={password}
+                placeholder="Password"
+                secureTextEntry={true}
+                onChangeText={setPassword}
+                autoComplete="off"
+                className="w-full"
+              />
+            </View>
           </View>
 
           {error && (
@@ -189,18 +179,18 @@ export default function SignUpScreen() {
           <Button
             onPress={onSignUpPress}
             disabled={!isLoaded}
-            className="w-full mt-2"
+            className="w-full mt-4"
           >
             <Text>Continue</Text>
           </Button>
         </View>
 
-        <View className="flex-row justify-center items-center space-x-1">
-          <Text className="text-sm text-muted-foreground">
+        <View className="flex-row justify-center items-center space-x-1 mt-3">
+          <Text className="text-md text-muted-foreground">
             Already have an account?
           </Text>
           <Link href="/SignIn" className="ml-1">
-            <Text className="text-sm text-primary font-medium">Sign in</Text>
+            <Text className="text-md text-primary font-medium">Sign in</Text>
           </Link>
         </View>
       </View>

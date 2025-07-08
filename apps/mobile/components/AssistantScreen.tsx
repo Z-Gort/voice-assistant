@@ -153,7 +153,7 @@ const RoomView = () => {
       <View className="items-center">
         <Button
           variant="default"
-          className="w-15 h-15 rounded-full bg-blue-600 active:bg-blue-700 p-2.5"
+          className="w-15 h-15 rounded-full primary p-2.5"
           onPress={() =>
             localParticipant.setMicrophoneEnabled(!isMicrophoneEnabled)
           }
@@ -169,17 +169,19 @@ const SimpleVoiceAssistant = () => {
   const { state, audioTrack } = useVoiceAssistant();
   return (
     <View className="items-center w-full">
-      <View className="w-full items-center">
+      <View className="w-1/2 items-center">
         <BarVisualizer
           state={state}
-          barCount={7}
+          barCount={5}
           options={{
             minHeight: 0.5,
+            maxHeight: 1.0,
           }}
           trackRef={audioTrack}
           style={{
             width: "100%",
-            height: 100,
+            height: 125,
+            transform: [{ scaleX: 1.5 }],
           }}
         />
       </View>
